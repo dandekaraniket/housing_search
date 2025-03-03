@@ -1,6 +1,5 @@
 import fitz  # PyMuPDF
 import os
-import shutil
 from housing_search import config
 from housing_search import db_search
 
@@ -36,42 +35,18 @@ def find_pdf_files_recursive(data_dir):
                 pdf_files.append(full_path)
     return pdf_files
 
-def remove_comma_and_rename(filepath):
-    try:
-        directory = os.path.dirname(filepath)
-        filename = os.path.basename(filepath)
-
-        new_filename = filename.replace(",", "")
-
-        new_filepath = os.path.join(directory, new_filename)
-
-        # Rename the file
-        if filepath != new_filepath: #prevents an error if the filename had no commas.
-            shutil.move(filepath, new_filepath)
-            print(f"Renamed '{filename}' to '{new_filename}'")
-        else:
-            print(f"Filename '{filename}' contained no commas. No rename necessary.")
-
-    except FileNotFoundError:
-        print(f"Error: File '{filepath}' not found.")
-    except Exception as e:
-        print(f"An error occurred: {e}")
-
 def main():
     db_helper.connect()
 
     schema1 = """
     document_name TEXT,
     document_splits LONGTEXT,
-    Chunked bool DEFAULT 0
+    Chunked bool DEFAULT 0 
     """
     ## Added new chunked bool column&&&
     db_helper.create_table("document_splitter", schema1)
     output_dir = config["paths"]["split_pdf_dir"]
     data_dir = config["paths"]["data_dir"]
-    pdf_files = find_pdf_files_recursive(data_dir)
-    for file_name in pdf_files:
-        remove_comma_and_rename(file_name)
     pdf_files = find_pdf_files_recursive(data_dir)
     for file_name in pdf_files:
         split_pdf(file_name, output_dir)

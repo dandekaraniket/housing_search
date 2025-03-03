@@ -3,11 +3,12 @@ from PIL import Image
 import requests
 import json
 import time
+import re
 from housing_search import config
 return_flag = config['return_flag']
 
 # Backend API URL
-API_URL = "http://localhost:8081/search"
+API_URL = "http://localhost:8084/search"
 
 st.title("AI Search for Housing Requirements")
 
@@ -52,6 +53,7 @@ if query:
             for result in results['Final_search_results'][0]:
                 st.write(f"**Search Results: {i}**")
                 long_text = json.dumps(f"{result[0]}", indent=4)
+                #long_text = re.sub(r'[^\w\s\n\b]', ' ', long_text)
                 st.write(f"**Source Document: {result[1][0]}**")
                 #st.markdown(long_text)  
                 st.markdown(f"""

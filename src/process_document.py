@@ -5,7 +5,7 @@ from housing_search import config
 from tqdm import tqdm
 from housing_search import db_search
 from queue import Queue
-from docling.document_converter import DocumentConverter
+from docling.document_converter import DocumentConverter 
 from docling.chunking import HybridChunker
 from sentence_transformers import SentenceTransformer
 from housing_search.faiss_common import create_faiss_ivf_index, save_faiss_index, \
@@ -66,6 +66,7 @@ class DocumentProcessor:
     def convert_pdf_to_document(self, pdf_path):
         try:
             print(f"Creating Docling for Document {pdf_path}")
+            #ocr_options = OcrOptions(language="eng",preserve_layout=True)
             converter = DocumentConverter()
             doc = converter.convert(source=pdf_path).document
             return doc
@@ -78,7 +79,7 @@ class DocumentProcessor:
             tokenizer=tokenizer,
             merge_peers=True,
             enforce_max_tokens=True,
-            merge_undersized_chunks=True, 
+            merge_undersized_chunks=True,
             max_tokens=256
         )
 
@@ -89,6 +90,7 @@ class DocumentProcessor:
         return chunker.serialize(chunk=chunk)
 
     def process_document(self, pdf_path, doc_id, all_parts_of_pdf):
+        print(f"process_document called for", {pdf_path})
         json_file_name = os.path.join(self.output_dir, f"{os.path.basename(pdf_path)}.json")
 
         if self.check_file_exists(json_file_name) and os.path.getsize(json_file_name) > 0:
@@ -99,7 +101,7 @@ class DocumentProcessor:
         try:
             with open(os.path.join(self.output_dir, f"{os.path.basename(pdf_path)}.json"), "w", encoding="utf-8") as f:
                 for pdf_split_path_list in all_parts_of_pdf:
-                    if len(pdf_split_path_list[0]) > 50:
+                    if len(pdf_split_path_list[0]) > 45:
                            pdf_split_path_list=pdf_split_path_list[0]
                            pdf_split_path_list=pdf_split_path_list.split(',')
                     for pdf_split_path in pdf_split_path_list:
@@ -160,6 +162,7 @@ def main():
     batch_quotient, batch_remainder = divmod(len(filenames), batch_size)
     total_batches = batch_quotient + 1
     for batch in range(1, total_batches + 1):
+        #time.sleep(2)
         gc.collect()
         torch.cuda.empty_cache()
         for file_number in range(i, i + batch_size):
@@ -184,7 +187,7 @@ def main():
     for file in filenames:
         json_file_name = os.path.join(processor.output_dir, f"{os.path.basename(file[0])}.json")
         if processor.check_file_exists(json_file_name) and os.path.getsize(json_file_name) > 0:
-            db_helper.update_table("document_splitter", "Chunked", 1, "document_name",  file[0])
+            db_helper.update_table("document_splitter", "Chunked", 1, "document_name",  file)
 
     #processor.db_helper.close()
 
