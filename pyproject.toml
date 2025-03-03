@@ -1,0 +1,27 @@
+[project]
+name = "housing-search"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = "==3.12.*"
+dependencies = [
+    "docling>=2.15.1",
+    "pymongo>=4.11.1",
+    "svlearn-bootcamp>=0.1.7",
+    "sentence-transformers>=3.4.1",
+    "faiss-cpu>=1.10.0",
+    "uvicorn>=0.34.0",
+    "streamlit>=1.42.1",
+    "pydantic>=2.10.6",
+    "fastapi>=0.115.8",
+    "fitz>=0.0.1.dev2",
+    "pymupdf>=1.25.3",
+    "rank-bm25>=0.2.2",
+    "unstructured[pdf]>=0.14.8",
+]
+
+[tool.hatch]
+packages = "src"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

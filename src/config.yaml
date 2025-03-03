@@ -1,0 +1,28 @@
+#-------------------------------------------------------------------------------------------
+#  Copyright (c) 2016-2025.  SupportVectors AI Lab
+#
+#  This code is part of the training material, and therefore part of the intellectual property.
+#  It may not be reused or shared without the explicit, written permission of SupportVectors.
+#
+#  Use is limited to the duration and purpose of the training at SupportVectors.
+#
+#  Author: SupportVectors AI Training
+#-------------------------------------------------------------------------------------------
+
+cohort: Spring 2025
+
+device: cuda
+
+paths:
+  data_dir: /home/data/proj1-data/
+  output_dir: /home/data/proj1-results-aniket/
+  faiss_index_file: /home/data/proj1-results-aniket/faiss_index_ivf.bin
+  db_file: /home/data/proj1-results-aniket/housing_search.db
+  split_pdf_dir: /home/data/proj1-split_pdf_aniket/
+  bm25_corpus_file : /home/data/proj1-results-aniket/bm25_corpus_file.pkl
+
+model : BAAI/bge-large-en
+re_ranker : BAAI/bge-reranker-large
+return_flag : 0
+num_results : 6
+bm25_corpus_file : /home/data/proj1-results-aniket/bm25_corpus_file.pkl
