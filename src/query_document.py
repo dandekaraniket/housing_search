@@ -13,6 +13,11 @@ import numpy as np
 from IPython.display import display, HTML
 import os
 import pickle
+from langchain.chat_models import ollama
+from langchain.chains import LLMChain
+from langchain.prompts import PromptTemplate
+from openai import OpenAI
+import re   
 return_flag = config['return_flag']
 
 class QueryDocument:
@@ -42,6 +47,8 @@ class QueryDocument:
             print("*********************************************************\n\n")
             print(f"Nearest neighbors of {query}\n")
             #distances, indices = search_l2_index(query, faiss_ivf_index, k=10)
+            query = self.query_rewrite_prompt(query)
+            print(f"Rewritten query is::::::: {query}\n")
             distances, indices = search_hnsw_index(query, faiss_ivf_index, k=10)
             for i, idx in enumerate(indices[0]):
                 if idx > 0:
@@ -106,6 +113,37 @@ class QueryDocument:
             if result_count > self.num_results:
                 break
         return final_search_result
+    
+    def query_rewrite_prompt(self, query):
+
+        query_rewrite_prompt = PromptTemplate.from_template(
+            "Rewrite the following search query to be more specific and optimized for semantic search: {query}"
+        )
+
+        client = OpenAI(
+            base_url='http://localhost:11434/v1/',
+            api_key='ollama',
+        )
+        
+        prompt = query_rewrite_prompt.format(query=query)
+
+        response = client.completions.create(
+            model="llama3.2",
+            prompt=prompt,
+            n=1,
+            max_tokens=250,
+            temperature=1.0,
+            top_p=1.0,
+            stop=None,
+            stream=False
+        )
+
+        optimized_query = response.choices[0].text.strip()
+
+        match = re.findall(r'"(.*?)"', optimized_query, re.DOTALL)
+        if match:
+            optimized_query = match[0]
+        return optimized_query
 
 def main():
     query = QueryDocument()

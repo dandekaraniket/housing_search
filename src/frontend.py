@@ -7,7 +7,7 @@ from housing_search import config
 return_flag = config['return_flag']
 
 # Backend API URL
-API_URL = "http://localhost:8081/search"
+API_URL = "http://localhost:8000/search"
 
 st.title("AI Search for Housing Requirements")
 
