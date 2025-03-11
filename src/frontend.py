@@ -34,7 +34,8 @@ if query:
             st.write(f"**Semantic Search Results:**")
             for result in results['ss_search'][0]:
                 st.write(f"**Search Results: {i}**")
-                long_text = json.dumps(f"{result[0]}", indent=4)
+                #long_text = json.dumps(f"{result[0]}", indent=4)
+                long_text = result[0]
                 st.write(f"**Source Document: {result[1][0]}**")
                 st.markdown(long_text)  
                 i = i + 1
@@ -42,7 +43,8 @@ if query:
             st.write(f"**BM25 Search Results:**")
             for result in results['bm25_results'][0]:
                 st.write(f"**Search Results: {i}**")
-                long_text = json.dumps(f"{result[0]}", indent=4)
+                #long_text = json.dumps(f"{result[0]}", indent=4)
+                long_text = result[0]
                 st.write(f"**Source Document: {result[1][0]}**")
                 st.markdown(long_text)  
                 i = i + 1            
@@ -51,7 +53,8 @@ if query:
             st.write(f"**Final Hybrid Search Results:**")
             for result in results['Final_search_results'][0]:
                 st.write(f"**Search Results: {i}**")
-                long_text = json.dumps(f"{result[0]}", indent=4)
+                #long_text = json.dumps(f"{result[0]}", indent=4)
+                long_text = result[0]
                 st.write(f"**Source Document: {result[1][0]}**")
                 #st.markdown(long_text)  
                 st.markdown(f"""

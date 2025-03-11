@@ -160,6 +160,20 @@ class DBHelper:
             print(f"Error inserting data: {e}")
             self.conn.rollback()
             return False
+    
+    def query_document_name_from_splitter_table(self, table_name,docname):
+        try:
+            cursor = self.conn.cursor()
+            get_query = f'SELECT document_name FROM {table_name} where document_name LIKE \'%{docname}%\''
+            #added a condition to return those documents where Chunked=0 meaning they are not chunked yet&&&
+            query_data = cursor.execute(get_query)
+            query_result = query_data.fetchall()
+            self.conn.commit()
+            return query_result
+        except sqlite3.Error as e:
+            print(f"Error inserting data: {e}")
+            self.conn.rollback()
+            return False
         
     def query_document_splitter_table_splits(self, table_name, document_name):
         try:

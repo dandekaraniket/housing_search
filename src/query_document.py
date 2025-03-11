@@ -56,6 +56,8 @@ class QueryDocument:
                     chunk_query_result = self.db_helper.query_data_specific("chunk", idx+1)
                     chunk_query_result_list = list(chunk_query_result)
                     document_name = self.db_helper.query_data_document_table("document", chunk_query_result_list[1])
+                    document_pdf = os.path.basename(document_name[0]).replace('.json', '')
+                    document_name = self.db_helper.query_document_name_from_splitter_table("document_splitter",document_pdf)
                     chunk_query_result_list[1] = document_name
                     chunk_query_result = tuple(chunk_query_result_list)
                     text_result.append(chunk_query_result)
@@ -68,8 +70,16 @@ class QueryDocument:
             text_result.append(each_result)
         #This line of code will break if search queries is multiple queries in the list
         final_reranked_results = self.rerank_bm25_and_ss_results(text_result, search_queries[0])
+        opt_result  = ""
+        for result in final_reranked_results:
+            opt_result = opt_result + "".join(result[0])
+    
+        final_opt_result_list = [self.result_rewrite_prompt(opt_result)]
+        final_opt_result_list.insert(1,{"Summary Result"})
+        final_opt_result = tuple(final_opt_result_list)
+        
+        final_reranked_results.insert(0,final_opt_result)
         return final_reranked_results
-
 
     def search_and_print_bm25_results(self, search_queries):
         for query in search_queries:
@@ -144,6 +154,34 @@ class QueryDocument:
         if match:
             optimized_query = match[0]
         return optimized_query
+
+    def result_rewrite_prompt(self, result):
+    
+        result_rewrite_prompt = PromptTemplate.from_template(
+            f"Based on the following search results, provide a detailed summary: {result}:"
+        )      
+        client = OpenAI(
+            base_url='http://localhost:11434/v1/',
+            api_key='ollama',
+        )    
+        prompt = result_rewrite_prompt.format(result=result)     
+        response = client.completions.create(
+            model="llama3.2", 
+            prompt=prompt,
+            n=1,
+            max_tokens=1024,
+            temperature=0.7,
+            top_p=1.0,
+            stop=None,
+            stream=False
+        )   
+        optimized_result  = response.choices[0].text.strip()
+        match = re.findall(r'"(.*?)"', optimized_result, re.DOTALL)
+        if match:
+            optimized_result = match[0]
+        client._client.close()
+        return optimized_result
+
 
 def main():
     query = QueryDocument()
