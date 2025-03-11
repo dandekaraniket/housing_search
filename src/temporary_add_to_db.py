@@ -4,7 +4,7 @@ from housing_search import config
 from housing_search import db_search
 output_dir = config["paths"]["output_dir"]
 
-db_helper = db_search.DBHelper("/home/data/proj1-results/housing_search.db")
+db_helper = db_search.DBHelper("/home/data/proj1-results-aniket/housing_search.db")
 
 def main():
     db_helper.connect()

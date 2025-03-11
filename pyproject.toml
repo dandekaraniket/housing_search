@@ -20,6 +20,10 @@ dependencies = [
     "unstructured[pdf]>=0.14.8",
     "langchain>=0.3.20",
     "langchain-community>=0.3.19",
+    "tools>=0.1.9",
+    "frontend>=0.0.3",
+    "spacy>=3.8.4",
+    "pip>=25.0.1",
 ]
 
 [tool.hatch]

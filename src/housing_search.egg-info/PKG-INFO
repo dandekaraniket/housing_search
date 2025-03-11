@@ -1,0 +1,23 @@
+Metadata-Version: 2.2
+Name: housing-search
+Version: 0.1.0
+Summary: Add your description here
+Requires-Python: ==3.12.*
+Description-Content-Type: text/markdown
+Requires-Dist: docling>=2.15.1
+Requires-Dist: pymongo>=4.11.1
+Requires-Dist: svlearn-bootcamp>=0.1.7
+Requires-Dist: sentence-transformers>=3.4.1
+Requires-Dist: faiss-cpu>=1.10.0
+Requires-Dist: uvicorn>=0.34.0
+Requires-Dist: streamlit>=1.42.1
+Requires-Dist: pydantic>=2.10.6
+Requires-Dist: fastapi>=0.115.8
+Requires-Dist: fitz>=0.0.1.dev2
+Requires-Dist: pymupdf>=1.25.3
+Requires-Dist: rank-bm25>=0.2.2
+Requires-Dist: unstructured[pdf]>=0.14.8
+Requires-Dist: langchain>=0.3.20
+Requires-Dist: langchain-community>=0.3.19
+Requires-Dist: tools>=0.1.9
+Requires-Dist: frontend>=0.0.3

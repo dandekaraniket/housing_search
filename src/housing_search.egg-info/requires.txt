@@ -1,0 +1,17 @@
+docling>=2.15.1
+pymongo>=4.11.1
+svlearn-bootcamp>=0.1.7
+sentence-transformers>=3.4.1
+faiss-cpu>=1.10.0
+uvicorn>=0.34.0
+streamlit>=1.42.1
+pydantic>=2.10.6
+fastapi>=0.115.8
+fitz>=0.0.1.dev2
+pymupdf>=1.25.3
+rank-bm25>=0.2.2
+unstructured[pdf]>=0.14.8
+langchain>=0.3.20
+langchain-community>=0.3.19
+tools>=0.1.9
+frontend>=0.0.3

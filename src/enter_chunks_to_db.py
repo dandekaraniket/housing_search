@@ -11,6 +11,11 @@ from sentence_transformers import SentenceTransformer
 from housing_search.faiss_common import create_faiss_ivf_index, save_faiss_index, \
     read_jsonl_file, load_faiss_index, search_l2_index, create_faiss_hnsw_index
 from transformers import AutoTokenizer, AutoModel
+from langchain.chat_models import ollama
+from langchain.chains import LLMChain
+from langchain.prompts import PromptTemplate
+from openai import OpenAI
+import re
 
 DEVICE = config["device"] 
 MODEL = config["model"]
@@ -87,6 +92,34 @@ def find_pdf_files_recursive(data_dir):
                 full_path = os.path.join(root, file)
                 pdf_files.append(full_path)
     return pdf_files
+
+def create_summary_chunk (chunk):
+    create_summary_chunk_prompt = PromptTemplate.from_template(
+        "Create a summary from text which can be used to creat embedding in 8-10 lines: {text}"
+    )
+    client = OpenAI(
+        base_url='http://localhost:11434/v1/',
+        api_key='ollama',
+    )
+    prompt = create_summary_chunk_prompt.format(text=chunk)
+        
+    response = client.completions.create(
+        model="llama3.2",
+        prompt=prompt,
+        n=1,
+        max_tokens=1024,
+        temperature=1.0,
+        top_p=1.0,
+        stop=None,
+        stream=False
+    )
+    summary_chunk = response.choices[0].text.strip()
+        
+    match = re.findall(r'"(.*?)"', summary_chunk, re.DOTALL)
+    if match:
+        summary_chunk = match[0]
+    client._client.close()
+    return summary_chunk
     
 def main():
     processor = DocumentDBOperator(embedder, faiss_index_file, output_dir)
@@ -96,14 +129,34 @@ def main():
     document_id = 1
     rewritten_chunk_id = 1
     for file_name in chunked_json_files:
+        print(f"Processing Document: {file_name}") ##New
         processor.db_helper.insert_data("document", {"filename": file_name, "doctype": "pdf", "text": "", "id": document_id})
+        summary_chunks_store = [] ##New
         with open(file_name, "r", encoding="utf-8") as f:
+            chunk_number_in_a_batch = 1 ##New
+            tmp_chunk_store = '' ##New
             for line in f:
+                if chunk_number_in_a_batch == 6: ##New
+                    chunk_number_in_a_batch = 1  ##New
+                    tmp_chunk_store = '' ##New
                 data = json.loads(line)
+                tmp_chunk_store = tmp_chunk_store + data['text'] ##New
                 if data:
                     data_2_enter_in_db = {"text": data['text'], "document_id": document_id, "id": rewritten_chunk_id, "embedding": rewritten_chunk_id}
                     processor.db_helper.insert_data("chunk", data_2_enter_in_db)
                     rewritten_chunk_id = rewritten_chunk_id + 1
+                    chunk_number_in_a_batch = chunk_number_in_a_batch + 1
+                if chunk_number_in_a_batch == 6: ##New
+                    summary_chunk = create_summary_chunk(tmp_chunk_store) ##New
+                    string_to_remove = "Here is a summary in 8-10 lines that can be used as input for creating embedding:" ##New
+                    summary_chunk.replace(string_to_remove, "") ##New
+                    summary_chunks_store.append({"text": summary_chunk, "document_id": document_id, "id": rewritten_chunk_id, "embedding": rewritten_chunk_id}) ##New
+                    processor.db_helper.insert_data("chunk", {"text": summary_chunk, "document_id": document_id, "id": rewritten_chunk_id, "embedding": rewritten_chunk_id}) ##New
+                    rewritten_chunk_id = rewritten_chunk_id + 1 ##New
+        with open(file_name, "a", encoding="utf-8") as f: ##New
+            print(f"Writing new Chunk to Document: {file_name}") ##New
+            for summary_chunks in summary_chunks_store: ##New
+                f.write(json.dumps(summary_chunks) + '\n') ##New
         document_id = document_id + 1
         
 
